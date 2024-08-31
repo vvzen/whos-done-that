@@ -17,7 +17,7 @@ struct Cli {
     #[arg(
         short,
         long,
-        help = "The target directory to analyze. It must be a git repo."
+        help = "The target directory to analyze. It must be a git repo. If not provided, cwd will be used instead."
     )]
     target_dir: Option<PathBuf>,
 }
