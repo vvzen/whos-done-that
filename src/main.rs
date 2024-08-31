@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 use clap::Parser;
 use color_eyre::{eyre, Section};
+use shell_quote::Bash;
 use tracing_subscriber::FmtSubscriber;
 
 #[derive(Parser, Debug)]
@@ -88,11 +89,11 @@ fn main() -> eyre::Result<()> {
 /// Return a list sorted lexicographically containing all of the detected authors
 /// for the git repository living at `target_dir`.
 fn get_all_authors(target_dir: impl AsRef<Path>) -> eyre::Result<Vec<String>> {
-    let old_cwd = std::env::current_dir()?;
-    std::env::set_current_dir(target_dir.as_ref())?;
-
-    let command = "git shortlog --summary --numbered --all --no-merges";
-    let stdout = get_stdout_from_subprocess_or_fail(command)?;
+    let command = format!(
+        "git -C {} shortlog --summary --numbered --all --no-merges",
+        target_dir.as_ref().display()
+    );
+    let stdout = get_stdout_from_subprocess_or_fail(&command)?;
 
     let mut authors = stdout
         .lines()
@@ -111,25 +112,22 @@ fn get_all_authors(target_dir: impl AsRef<Path>) -> eyre::Result<Vec<String>> {
 
     authors.sort();
 
-    std::env::set_current_dir(old_cwd)?;
-
     Ok(authors)
 }
 
 /// Return the number of commits authored by the given `author`
 /// for the git repository living at `target_dir`.
 fn get_num_author_commits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Result<usize> {
-    let old_cwd = std::env::current_dir()?;
-    std::env::set_current_dir(target_dir.as_ref())?;
-
-    let command = format!("git rev-list HEAD --author='{author}' --count --all");
+    let a = String::from_utf8(Bash::quote_vec(author))?;
+    let command = format!(
+        "git -C {} rev-list HEAD --author={a} --count --all",
+        target_dir.as_ref().display(),
+    );
     let stdout = get_stdout_from_subprocess_or_fail(&command)?;
 
     let num_of_commits = stdout.parse().with_suggestion(|| {
         format!("Failed to run '{command}'. '--count' didn't return a number!")
     })?;
-
-    std::env::set_current_dir(old_cwd)?;
 
     Ok(num_of_commits)
 }
@@ -137,10 +135,11 @@ fn get_num_author_commits(author: &str, target_dir: impl AsRef<Path>) -> eyre::R
 /// Return the number of edits authored by the given `author`
 /// for the git repository living at `target_dir`.
 fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Result<CodeEdit> {
-    let old_cwd = std::env::current_dir()?;
-    std::env::set_current_dir(target_dir.as_ref())?;
-
-    let command = format!("git log --author='{author}' --numstat --pretty=tformat:");
+    let a = String::from_utf8(Bash::quote_vec(author))?;
+    let command = format!(
+        "git -C {} log --author={a} --numstat --pretty=tformat:",
+        target_dir.as_ref().display()
+    );
     let stdout = get_stdout_from_subprocess_or_fail(&command)?;
 
     let mut total_additions = 0;
@@ -156,8 +155,6 @@ fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Res
             total_removals += removals.parse().unwrap_or(0);
         }
     });
-
-    std::env::set_current_dir(old_cwd)?;
 
     let ce = CodeEdit {
         additions: total_additions,
