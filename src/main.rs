@@ -116,6 +116,8 @@ fn get_all_authors(target_dir: impl AsRef<Path>) -> eyre::Result<Vec<String>> {
     Ok(authors)
 }
 
+/// Return the number of commits authored by the given `author`
+/// for the git repository living at `target_dir`.
 fn get_num_author_commits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Result<usize> {
     let old_cwd = std::env::current_dir()?;
     std::env::set_current_dir(target_dir.as_ref())?;
@@ -132,6 +134,8 @@ fn get_num_author_commits(author: &str, target_dir: impl AsRef<Path>) -> eyre::R
     Ok(num_of_commits)
 }
 
+/// Return the number of edits authored by the given `author`
+/// for the git repository living at `target_dir`.
 fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Result<CodeEdit> {
     let old_cwd = std::env::current_dir()?;
     std::env::set_current_dir(target_dir.as_ref())?;
@@ -163,6 +167,9 @@ fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Res
     Ok(ce)
 }
 
+/// Run the given `command` in a bash subshell and return back `stdout` if
+/// it returned a 0 exit code. This returns an error and prints `stderr` in case
+/// the subprocess execution errored.
 fn get_stdout_from_subprocess_or_fail(command: &str) -> eyre::Result<String> {
     use std::process::Command;
 
