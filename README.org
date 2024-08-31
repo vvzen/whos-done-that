@@ -1,0 +1,36 @@
+#+title: Readme
+
+A very simple CLI to check who's done the most commits/edits on a git repo, without having to remember the magic incantation for the ~git shortlog~ command every time.
+
+* Building
+
+I wrote this in Rust using
+
+#+begin_src bash :noeval
+$ rustc --version
+rustc 1.80.1 (3f5fd8dd4 2024-08-06)
+#+end_src
+
+I'm pretty sure the Rust Minimum Supported Version is way lower than that but I have no way of testing it.
+
+If you have rust installed (see https://docs.aci.apple.com/artifactory/cargo.html or the public https://www.rust-lang.org) you can build the project with cargo, as usual: ~cargo build --release~.
+
+Then you can put the resulting CLI (~./target/release/whos-done-that~) anywhere in your $PATH.
+
+* Usage
+
+Since this was written in an afternoon and a bit, there's no a lot of bells and whistles.
+
+You just need to point the CLI at a valid git repo, by using the ~t~/~target-dir~ flag.
+
+The actual result will be written to stdout so you can manipulate it via the usual UNIX tools, e.g.:
+#+begin_src bash :noeval
+$ whos-done-that -t ~/dev/personal/opensource/OpenColorIO | -n 5
+ INFO Getting a list of authors..
+ INFO Compiling stats..
+Jeremy Selan has made 507 commits: 61221 additions and 362789 removals
+Patrick Hodoul has made 314 commits: 942 additions and 367 removals
+Michael Dolan has made 135 commits: 493 additions and 35 removals
+Bernard Lefebvre has made 95 commits: 0 additions and 0 removals
+hodoulp has made 89 commits: 3384 additions and 2973 removals
+#+end_src
