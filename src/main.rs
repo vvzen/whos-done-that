@@ -9,11 +9,15 @@ use tracing_subscriber::FmtSubscriber;
 #[derive(Parser, Debug)]
 #[command(
     version,
-    long_about = "asjdalsjdl asld ",
+    long_about = "A CLI to help establish ownernship of codebases",
     arg_required_else_help = true
 )]
 struct Cli {
-    #[arg(short, long, help = "Something something")]
+    #[arg(
+        short,
+        long,
+        help = "The target directory to analyze. It must be a git repo."
+    )]
     target_dir: Option<PathBuf>,
 }
 
