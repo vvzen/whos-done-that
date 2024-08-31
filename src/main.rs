@@ -22,12 +22,18 @@ struct Cli {
     target_dir: Option<PathBuf>,
 }
 
-struct CodeEdit {
+struct CodeEdits {
     additions: usize,
     removals: usize,
 }
 
-impl Display for CodeEdit {
+struct AuthorData {
+    author_name: String,
+    code_edits: CodeEdits,
+    num_commits: usize,
+}
+
+impl Display for CodeEdits {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = format!(
             "{} additions and {} removals",
@@ -57,7 +63,7 @@ fn main() -> eyre::Result<()> {
     tracing::info!("Getting a list of authors..");
     let authors = get_all_authors(&target_dir)?;
 
-    let mut authors_num_commits = Vec::new();
+    let mut authors_data = Vec::new();
 
     tracing::info!("Compiling stats..");
 
@@ -65,22 +71,30 @@ fn main() -> eyre::Result<()> {
     for author in authors {
         let num_commits = get_num_author_commits(&author, target_dir.as_path())?;
         let code_edits = get_num_author_edits(&author, target_dir.as_path())?;
-        authors_num_commits.push((author.to_owned(), num_commits, code_edits));
+        authors_data.push(AuthorData {
+            num_commits,
+            code_edits,
+            author_name: author.to_owned(),
+        });
     }
-    authors_num_commits.sort_by(|a, b| a.1.cmp(&b.1).reverse());
+    authors_data.sort_by(|a, b| a.num_commits.cmp(&b.num_commits).reverse());
 
     // Print the final stats
     let stdout = std::io::stdout();
     let mut stdout_handle = std::io::BufWriter::new(stdout);
 
-    for (author, num_commits, code_edits) in authors_num_commits {
-        let ending = match num_commits {
+    for author_data in authors_data {
+        let ending = match author_data.num_commits {
             0 => "no commits".to_string(),
             1 => "1 commit".to_string(),
-            _ => format!("{num_commits} commits"),
+            _ => format!("{} commits", author_data.num_commits),
         };
 
-        writeln!(stdout_handle, "{author} has made {ending}: {code_edits}")?;
+        writeln!(
+            stdout_handle,
+            "{} has made {ending}: {}",
+            author_data.author_name, author_data.code_edits
+        )?;
     }
 
     Ok(())
@@ -134,7 +148,7 @@ fn get_num_author_commits(author: &str, target_dir: impl AsRef<Path>) -> eyre::R
 
 /// Return the number of edits authored by the given `author`
 /// for the git repository living at `target_dir`.
-fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Result<CodeEdit> {
+fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Result<CodeEdits> {
     let a = String::from_utf8(Bash::quote_vec(author))?;
     let command = format!(
         "git -C {} log --author={a} --numstat --pretty=tformat:",
@@ -156,7 +170,7 @@ fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Res
         }
     });
 
-    let ce = CodeEdit {
+    let ce = CodeEdits {
         additions: total_additions,
         removals: total_removals,
     };
