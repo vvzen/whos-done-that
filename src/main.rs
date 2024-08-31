@@ -168,8 +168,8 @@ fn get_num_author_edits(author: &str, target_dir: impl AsRef<Path>) -> eyre::Res
 }
 
 /// Run the given `command` in a bash subshell and return back `stdout` if
-/// it returned a 0 exit code. This returns an error and prints `stderr` in case
-/// the subprocess execution errored.
+/// it exited with 0. If the command exited with non 0 this will return an error
+/// and prints `stderr`.
 fn get_stdout_from_subprocess_or_fail(command: &str) -> eyre::Result<String> {
     use std::process::Command;
 
