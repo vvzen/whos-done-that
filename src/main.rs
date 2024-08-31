@@ -43,15 +43,22 @@ fn main() -> eyre::Result<()> {
     let cwd = std::env::current_dir()?;
 
     let subscriber = FmtSubscriber::builder()
+        .with_target(false)
+        .with_writer(std::io::stderr)
         .with_max_level(tracing::Level::INFO)
+        .without_time()
         .finish();
 
     tracing::subscriber::set_global_default(subscriber)?;
 
     let target_dir = cli.target_dir.unwrap_or(cwd);
+
+    tracing::info!("Getting a list of authors..");
     let authors = get_all_authors(&target_dir)?;
 
     let mut authors_num_commits = Vec::new();
+
+    tracing::info!("Compiling stats..");
 
     // TODO: This could be parallelized with rayon
     for author in authors {
