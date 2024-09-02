@@ -15,7 +15,14 @@ I'm pretty sure the Rust Minimum Supported Version is way lower than that but I 
 
 If you have rust installed (see https://www.rust-lang.org) you can build the project with cargo, as usual: ~cargo build --release~.
 
-Then you can put the resulting CLI (~./target/release/whos-done-that~) anywhere in your $PATH.
+Then you can put the resulting CLI (~./target/release/whos-done-that~) anywhere in your $PATH, since most of the dependencies are statically linked:
+#+begin_src bash :noeval
+$ ldd target/release/whos-done-that
+        linux-vdso.so.1 (0x000075253371a000)
+        libc.so.6 => /usr/lib/libc.so.6 (0x000075253336d000)
+        /lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x000075253371c000)
+        libgcc_s.so.1 => /usr/lib/libgcc_s.so.1 (0x000075253333f000)
+#+end_src
 
 * Usage
 
