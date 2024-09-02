@@ -100,8 +100,10 @@ fn main() -> eyre::Result<()> {
     Ok(())
 }
 
-/// Return a list sorted lexicographically containing all of the detected authors
-/// for the git repository living at `target_dir`.
+/// Return a list sorted lexicographically (by byte values) containing
+/// all of the detected authors for the git repository living at `target_dir`.
+/// For more notes on the sorting, see:
+/// https://doc.rust-lang.org/std/primitive.str.html#impl-Ord
 fn get_all_authors(target_dir: impl AsRef<Path>) -> eyre::Result<Vec<String>> {
     let command = format!(
         "git -C {} shortlog --summary --numbered --all --no-merges",
