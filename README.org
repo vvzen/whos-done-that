@@ -24,6 +24,13 @@ $ ldd target/release/whos-done-that
         libgcc_s.so.1 => /usr/lib/libgcc_s.so.1 (0x000075253333f000)
 #+end_src
 
+* Installation
+
+For a one-liner installer, this will do the trick (provided you have ~cargo~ installed) :
+#+begin_src bash :noeval
+cargo install --git https://github.com/vvzen/whos-done-that.git main
+#+end_src
+
 * Usage
 
 Since this was written in an afternoon and a bit, there's no a lot of bells and whistles.
