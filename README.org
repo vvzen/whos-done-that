@@ -35,7 +35,7 @@ cargo install --git https://github.com/vvzen/whos-done-that.git main
 
 Since this was written in an afternoon and a bit, there's no a lot of bells and whistles.
 
-You just need to point the CLI at a valid git repo, by using the ~t~/~target-dir~ flag.
+You just need to point the CLI at a valid git repo, by using the `t /~target-dir` flag.
 
 The actual result will be written to stdout so you can manipulate it via the usual UNIX tools, e.g.:
 #+begin_src bash :noeval
