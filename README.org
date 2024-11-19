@@ -39,7 +39,7 @@ You just need to point the CLI at a valid git repo, by using the ~-t/--target-di
 
 The actual result will be written to stdout so you can manipulate it via the usual UNIX tools, e.g.:
 #+begin_src bash :noeval
-$ whos-done-that -t ~/dev/personal/opensource/OpenColorIO | -n 5
+$ whos-done-that -t ~/dev/personal/opensource/OpenColorIO | head -n 5
  INFO Getting a list of authors..
  INFO Compiling stats..
 Jeremy Selan has made 507 commits: 61221 additions and 362789 removals
